@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Викторина: Собираемся на фотосъёмку</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #42275a, #734b6d);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 16px; color: #1a1a2e;
+  }
+  .card {
+    background: #fff; border-radius: 20px; max-width: 720px; width: 100%;
+    padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  h1 { font-size: 22px; text-align: center; margin-bottom: 4px; }
+  .sub { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
+  .task {
+    font-size: 16px; line-height: 2.2; margin-bottom: 20px;
+    background: #faf8fc; padding: 18px; border-radius: 14px; border: 1px solid #e9e2ee;
+  }
+  .num { font-weight: 700; color: #42275a; margin-right: 4px; }
+  select {
+    font-family: inherit; font-size: 15px; padding: 6px 10px;
+    border: 2px solid #cbd5e1; border-radius: 8px; background: #fff;
+    cursor: pointer; color: #1a1a2e; transition: all .15s;
+  }
+  select:focus { outline: none; border-color: #734b6d; }
+  select.correct { border-color: #16a34a; background: #dcfce7; }
+  select.wrong { border-color: #dc2626; background: #fee2e2; }
+  .actions { display: flex; gap: 10px; }
+  button {
+    flex: 1; padding: 14px; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit;
+    transition: background .15s;
+  }
+  .check { background: #734b6d; color: #fff; }
+  .check:hover { background: #5a3a55; }
+  .reset { background: #e2e8f0; color: #334155; }
+  .reset:hover { background: #cbd5e1; }
+  .result {
+    margin-top: 18px; padding: 16px; border-radius: 12px; text-align: center;
+    font-size: 17px; font-weight: 600; display: none;
+  }
+  .result.show { display: block; animation: pop .3s ease; }
+  .result.ok { background: #dcfce7; color: #166534; }
+  .result.mid { background: #fef9c3; color: #854d0e; }
+  .result.bad { background: #fee2e2; color: #991b1b; }
+  @keyframes pop { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📸 Викторина: «Собираемся на фотосъёмку»</h1>
+  <div class="sub">Выберите правильное слово из выпадающего списка</div>
+
+  <div class="task">
+    <span class="num">1.</span> Перед съёмкой проверь, заряжен ли
+    <select data-answer="аккумулятор">
+      <option value="">— выберите —</option>
+      <option>объектив</option>
+      <option>аккумулятор</option>
+      <option>штатив</option>
+    </select>.<br>
+
+    <span class="num">2.</span> Снимки сохраняются на
+    <select data-answer="карту памяти">
+      <option value="">— выберите —</option>
+      <option>карту памяти</option>
+      <option>крышку объектива</option>
+      <option>ремень камеры</option>
+    </select>.<br>
+
+    <span class="num">3.</span> Чтобы на фотографии не было пятен от грязного стекла, нужно протереть
+    <select data-answer="объектив">
+      <option value="">— выберите —</option>
+      <option>экран телефона</option>
+      <option>ножку штатива</option>
+      <option>объектив</option>
+    </select>.<br>
+
+    <span class="num">4.</span> Для устойчивого положения камеры используют
+    <select data-answer="штатив">
+      <option value="">— выберите —</option>
+      <option>штатив</option>
+      <option>микрофон</option>
+      <option>отражатель</option>
+    </select>.<br>
+
+    <span class="num">5.</span> Чтобы приблизить далёкий объект, можно использовать
+    <select data-answer="зум">
+      <option value="">— выберите —</option>
+      <option>таймер</option>
+      <option>зум</option>
+      <option>вспышку</option>
+    </select>.
+  </div>
+
+  <div class="actions">
+    <button class="check" id="check">Проверить ✅</button>
+    <button class="reset" id="reset">Сбросить 🔄</button>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+const selects = document.querySelectorAll('select');
+const result = document.getElementById('result');
+
+document.getElementById('check').onclick = () => {
+  let correct = 0;
+  let filled = 0;
+  selects.forEach(s => {
+    s.classList.remove('correct', 'wrong');
+    if (s.value) filled++;
+    if (s.value === s.dataset.answer) {
+      s.classList.add('correct');
+      correct++;
+    } else if (s.value) {
+      s.classList.add('wrong');
+    }
+  });
+
+  result.classList.remove('ok', 'mid', 'bad');
+  result.classList.add('show');
+
+  if (filled < selects.length) {
+    result.classList.add('bad');
+    result.textContent = `⚠️ Заполните все пропуски (${filled} из ${selects.length}).`;
+  } else if (correct === selects.length) {
+    result.classList.add('ok');
+    result.textContent = `🎉 Отлично! Все ${correct} из ${selects.length} верно!`;
+  } else if (correct >= 3) {
+    result.classList.add('mid');
+    result.textContent = `👍 Хорошо! Верно ${correct} из ${selects.length}. Посмотри на красные поля.`;
+  } else {
+    result.classList.add('bad');
+    result.textContent = `❌ Верно ${correct} из ${selects.length}. Попробуй ещё раз!`;
+  }
+};
+
+document.getElementById('reset').onclick = () => {
+  selects.forEach(s => {
+    s.value = '';
+    s.classList.remove('correct', 'wrong');
+  });
+  result.classList.remove('show', 'ok', 'mid', 'bad');
+};
+</script>
+</body>
+</html>
