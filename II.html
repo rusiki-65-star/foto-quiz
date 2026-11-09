@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Викторина: безопасное общение в сети</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px;
+      line-height: 1.5;
+    }
+    .quiz-container {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+      padding: 24px 20px 28px;
+      margin: 12px 0 24px;
+    }
+    h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+      word-break: break-word;
+      text-align: center;
+    }
+    .subhead {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #475569;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 16px;
+    }
+    .question-item {
+      margin-bottom: 24px;
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 18px 16px 16px;
+      transition: background 0.2s, box-shadow 0.2s;
+      border: 1px solid #e9eef3;
+    }
+    .question-text {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .q-num {
+      background: #334155;
+      color: white;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .select-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    select {
+      width: 100%;
+      padding: 14px 36px 14px 16px;
+      font-size: 1rem;
+      border-radius: 16px;
+      border: 1.5px solid #cbd5e1;
+      background: white;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 18px;
+      cursor: pointer;
+      color: #0f172a;
+      font-weight: 500;
+      transition: border 0.15s, box-shadow 0.15s;
+    }
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+    select option {
+      font-size: 1rem;
+      padding: 8px;
+      white-space: normal;
+    }
+    /* Подсветка ошибок */
+    .question-item.error-highlight {
+      background: #fff1f0;
+      border: 1.5px solid #e11d48;
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.1);
+    }
+    .error-message {
+      display: none;
+      font-size: 0.85rem;
+      color: #b91c1c;
+      margin-top: 8px;
+      padding-left: 4px;
+      font-weight: 500;
+    }
+    .question-item.error-highlight .error-message {
+      display: block;
+    }
+    /* Блок результатов */
+    .result-panel {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 16px 18px;
+      margin: 12px 0 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+    .score-text {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: #0f172a;
+    }
+    .score-value {
+      color: #2563eb;
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin-left: 4px;
+    }
+    .score-total {
+      color: #64748b;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      width: 100%;
+    }
+    .btn {
+      flex: 1;
+      padding: 16px 12px;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.1s;
+      text-align: center;
+      touch-action: manipulation;
+      letter-spacing: 0.01em;
+    }
+    .btn:active {
+      transform: scale(0.97);
+    }
+    .btn-primary {
+      background: #1e293b;
+      color: white;
+      box-shadow: 0 6px 14px rgba(30, 41, 59, 0.25);
+    }
+    .btn-primary:hover {
+      background: #0f172a;
+    }
+    .btn-secondary {
+      background: #eef2f6;
+      color: #1e293b;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .info-note {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: 16px;
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 40px;
+    }
+    /* для очень маленьких экранов */
+    @media (max-width: 400px) {
+      .quiz-container {
+        padding: 18px 14px 20px;
+      }
+      h1 {
+        font-size: 1.45rem;
+      }
+      .question-text {
+        font-size: 1rem;
+      }
+      select {
+        padding: 13px 32px 13px 14px;
+        font-size: 0.95rem;
+      }
+      .btn {
+        padding: 14px 8px;
+        font-size: 1rem;
+      }
+      .result-panel {
+        padding: 14px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="quiz-container">
+  <h1>🔐 Безопасный интернет</h1>
+  <div class="subhead">Общение в сети — как защитить себя?</div>
+
+  <!-- Контейнер для вопросов -->
+  <div id="questionsContainer"></div>
+
+  <!-- Панель с баллами и кнопками -->
+  <div class="result-panel">
+    <span class="score-text">Баллы: <span id="scoreDisplay" class="score-value">0</span><span class="score-total"> / 5</span></span>
+    <span id="completionStatus" style="font-size:0.9rem; color:#475569;"></span>
+  </div>
+
+  <div class="actions">
+    <button id="checkBtn" class="btn btn-primary">Проверить</button>
+    <button id="resetBtn" class="btn btn-secondary">Начать заново</button>
+  </div>
+
+  <div class="info-note">
+    Выберите вариант в каждом списке и нажмите «Проверить».
+  </div>
+</div>
+
+<script>
+  // Вопросы и варианты (перемешаны вручную, правильные ответы сохранены)
+  const questionsData = [
+    {
+      text: "Незнакомец в соцсети просит вашу фотографию и домашний адрес. Что делать?",
+      options: [
+        "Отправить фото и адрес, если он вежливо просит",
+        "Не отправлять личные данные и сообщить взрослым",
+        "Проигнорировать, но потом всё равно отправить"
+      ],
+      correctIndex: 1  // правильный: "Не отправлять личные данные и сообщить взрослым"
+    },
+    {
+      text: "Друг в мессенджере присылает ссылку «Проголосуй за меня, тут приз!». Ваши действия?",
+      options: [
+        "Перейду по ссылке и введу данные для входа",
+        "Не перехожу по подозрительным ссылкам и предупрежу друга",
+        "Перешлю ссылку всем контактам"
+      ],
+      correctIndex: 1
+    },
+    {
+      text: "Какой пароль надёжнее для аккаунта в соцсети?",
+      options: [
+        "Дата рождения и имя",
+        "Длинный пароль из букв, цифр и символов",
+        "Простое слово «qwerty»"
+      ],
+      correctIndex: 1
+    },
+    {
+      text: "В сети незнакомый человек угрожает и оскорбляет вас. Что нужно сделать?",
+      options: [
+        "Ответить ему тем же",
+        "Заблокировать, сохранить доказательства и рассказать родителям/учителю",
+        "Удалить аккаунт и никому не говорить"
+      ],
+      correctIndex: 1
+    },
+    {
+      text: "Что означает «фишинг» в интернете?",
+      options: [
+        "Мошенничество, чтобы выманить личные данные через поддельные сайты/письма",
+        "Способ быстрого поиска друзей",
+        "Игра с виртуальной рыбалкой"
+      ],
+      correctIndex: 0
+    }
+  ];
+
+  // Состояние
+  let userAnswers = new Array(questionsData.length).fill(null); // выбранные индексы (0,1,2) или null
+  let errorFlags = new Array(questionsData.length).fill(false); // для подсветки ошибок после проверки
+  let checked = false; // была ли нажата проверка (чтобы обновлять стили)
+
+  const questionsContainer = document.getElementById('questionsContainer');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const completionStatus = document.getElementById('completionStatus');
+  const checkBtn = document.getElementById('checkBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  // Функция отрисовки всех вопросов
+  function renderQuestions() {
+    questionsContainer.innerHTML = '';
+    questionsData.forEach((q, idx) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'question-item';
+      itemDiv.id = `q-${idx}`;
+      if (errorFlags[idx] && checked) {
+        itemDiv.classList.add('error-highlight');
+      }
+
+      // Текст вопроса
+      const qTextDiv = document.createElement('div');
+      qTextDiv.className = 'question-text';
+      qTextDiv.innerHTML = `<span class="q-num">${idx + 1}</span> <span>${q.text}</span>`;
+
+      // Выпадающий список
+      const selectWrapper = document.createElement('div');
+      selectWrapper.className = 'select-wrapper';
+      const select = document.createElement('select');
+      select.id = `select-${idx}`;
+      select.dataset.qIndex = idx;
+
+      // Вариант-заглушка
+      const placeholderOption = document.createElement('option');
+      placeholderOption.value = '';
+      placeholderOption.disabled = true;
+      placeholderOption.selected = userAnswers[idx] === null;
+      placeholderOption.textContent = '— Выберите вариант —';
+      select.appendChild(placeholderOption);
+
+      // Перемешанные варианты (уже перемешаны в данных, просто выводим)
+      q.options.forEach((optText, optIndex) => {
+        const option = document.createElement('option');
+        option.value = optIndex;
+        option.textContent = optText;
+        // Если ранее был выбран этот вариант, отмечаем selected
+        if (userAnswers[idx] === optIndex) {
+          option.selected = true;
+        }
+        select.appendChild(option);
+      });
+
+      // Обработчик изменения выбора
+      select.addEventListener('change', (e) => {
+        const qIdx = parseInt(e.target.dataset.qIndex);
+        const val = e.target.value;
+        if (val === '') {
+          userAnswers[qIdx] = null;
+        } else {
+          userAnswers[qIdx] = parseInt(val);
+        }
+        // Если уже была проверка, сбрасываем подсветку ошибок для этого вопроса?
+        // По логике: при изменении ответа после проверки, возможно, стоит убрать ошибку, если ответ правильный.
+        // Но для простоты и предсказуемости: после любого изменения, если checked == true, 
+        // мы можем пересчитать ошибки и перерисовать? Или просто сбросить checked, чтобы пользователь снова нажал проверить.
+        // Лучше сбросить состояние "проверено" и обнулить ошибки, чтобы не было ложной подсветки.
+        if (checked) {
+          checked = false;
+          errorFlags.fill(false);
+          // Перерисовываем, чтобы убрать красные рамки и сообщения
+          renderQuestions();
+          // Обнуляем отображение баллов? Нет, баллы оставим, но сбросим статус "проверено"
+          updateScoreDisplay(); // сбросит отображение баллов (не будет показывать результат проверки)
+          completionStatus.textContent = '';
+        }
+      });
+
+      selectWrapper.appendChild(select);
+
+      // Сообщение об ошибке (скрыто по умолчанию, показывается при error-highlight)
+      const errorMsg = document.createElement('div');
+      errorMsg.className = 'error-message';
+      errorMsg.textContent = '❌ Неверный ответ. Попробуйте ещё раз.';
+
+      itemDiv.appendChild(qTextDiv);
+      itemDiv.appendChild(selectWrapper);
+      itemDiv.appendChild(errorMsg);
+
+      questionsContainer.appendChild(itemDiv);
+    });
+  }
+
+  // Обновление отображения счёта в зависимости от того, проверено или нет
+  function updateScoreDisplay() {
+    if (!checked) {
+      // Если не проверено, показываем 0? Или можно показывать количество выбранных? Лучше 0.
+      // Но при сбросе тоже 0.
+      scoreDisplay.textContent = '0';
+      return;
+    }
+    // Подсчёт правильных ответов
+    let correctCount = 0;
+    userAnswers.forEach((ans, idx) => {
+      if (ans !== null && ans === questionsData[idx].correctIndex) {
+        correctCount++;
+      }
+    });
+    scoreDisplay.textContent = correctCount;
+  }
+
+  // Подсветка ошибок после проверки
+  function highlightErrors() {
+    questionsData.forEach((q, idx) => {
+      const itemDiv = document.getElementById(`q-${idx}`);
+      if (!itemDiv) return;
+      const isCorrect = (userAnswers[idx] !== null && userAnswers[idx] === q.correctIndex);
+      // Ошибка: либо ответ не выбран, либо неверен
+      if (!isCorrect) {
+        itemDiv.classList.add('error-highlight');
+        errorFlags[idx] = true;
+      } else {
+        itemDiv.classList.remove('error-highlight');
+        errorFlags[idx] = false;
+      }
+    });
+  }
+
+  // Сброс подсветки (при новом рендере или сбросе)
+  function clearHighlights() {
+    questionsData.forEach((_, idx) => {
+      const itemDiv = document.getElementById(`q-${idx}`);
+      if (itemDiv) itemDiv.classList.remove('error-highlight');
+      errorFlags[idx] = false;
+    });
+  }
+
+  // Проверка: все ли поля заполнены
+  function allFieldsFilled() {
+    return userAnswers.every(ans => ans !== null);
+  }
+
+  // Обработчик кнопки "Проверить"
+  function handleCheck() {
+    if (!allFieldsFilled()) {
+      // Предложить завершить задание (показать сообщение)
+      completionStatus.textContent = '⚠️ Заполните все поля, чтобы проверить';
+      completionStatus.style.color = '#b45309';
+      // Можно мягко подсветить незаполненные вопросы? Но не обязательно
+      return;
+    }
+
+    // Всё заполнено — проверяем
+    checked = true;
+    clearHighlights(); // сброс старых ошибок
+    // Определяем ошибки
+    questionsData.forEach((q, idx) => {
+      if (userAnswers[idx] !== q.correctIndex) {
+        errorFlags[idx] = true;
+      } else {
+        errorFlags[idx] = false;
+      }
+    });
+    // Применяем классы ошибок
+    errorFlags.forEach((hasError, idx) => {
+      const itemDiv = document.getElementById(`q-${idx}`);
+      if (itemDiv) {
+        if (hasError) {
+          itemDiv.classList.add('error-highlight');
+        } else {
+          itemDiv.classList.remove('error-highlight');
+        }
+      }
+    });
+
+    // Подсчёт баллов
+    let correctCount = 0;
+    userAnswers.forEach((ans, idx) => {
+      if (ans === questionsData[idx].correctIndex) correctCount++;
+    });
+    scoreDisplay.textContent = correctCount;
+    completionStatus.textContent = `✅ Проверено: ${correctCount} из ${questionsData.length}`;
+    completionStatus.style.color = '#0f172a';
+  }
+
+  // Сброс викторины
+  function resetQuiz() {
+    userAnswers = new Array(questionsData.length).fill(null);
+    errorFlags.fill(false);
+    checked = false;
+    // Очищаем контейнер и перерисовываем
+    renderQuestions();
+    // Сбрасываем отображение счёта
+    scoreDisplay.textContent = '0';
+    completionStatus.textContent = '';
+    // Снимаем все подсветки (уже при рендере нет ошибок)
+  }
+
+  // Начальная инициализация
+  function init() {
+    renderQuestions();
+    scoreDisplay.textContent = '0';
+    completionStatus.textContent = '';
+
+    checkBtn.addEventListener('click', handleCheck);
+    resetBtn.addEventListener('click', resetQuiz);
+  }
+
+  // Запускаем
+  init();
+</script>
+</body>
+</html>
